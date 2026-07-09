@@ -12,6 +12,9 @@ Detailed API documentation is available in:
 ## Project Structure
 ```
 rs-auth-ai/
+├── docker-compose.yml         # Local PostgreSQL + Redis
+├── .env.example                # Environment variable template
+├── migrations/                 # SQL migrations (run automatically on startup)
 ├── src/
 │   ├── main.rs                # Application entry point
 │   ├── errors.rs              # Error handling
@@ -73,8 +76,7 @@ rs-auth-ai/
 ### Prerequisites
 - Rust (stable, latest version)
 - Cargo
-- MongoDB
-- PostgreSQL 12+
+- Docker & Docker Compose (for PostgreSQL 12+ and Redis), or your own instances
 - API keys for Google and Facebook OAuth (optional)
 - Tongyi Qianwen API key (for AI features)
 
@@ -86,27 +88,30 @@ git clone https://github.com/Erio-Harrison/rs-auth-ai.git
 cd rs-auth-ai
 ```
 
-2. Configure environment variables in a .env file:
-```env
-DATABASE_URL=Your DATABASE_URL
-REDIS_URL=redis://localhost:6379
-SERVER_HOST=0.0.0.0
-SERVER_PORT=8080
-JWT_SECRET=your_strong_secret_key
-JWT_EXPIRATION=604800
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
-FACEBOOK_APP_ID=your_facebook_app_id
-FACEBOOK_APP_SECRET=your_facebook_app_secret
-AI_TONGYI_API_KEY=your_tongyi_api_key
+2. Start PostgreSQL and Redis (via Docker Compose):
+```bash
+docker compose up -d
 ```
 
-3. Install dependencies:
+3. Configure environment variables:
+```bash
+cp .env.example .env
+# edit .env and fill in secrets (JWT_SECRET, OAuth keys, AI_TONGYI_API_KEY, ...)
+# the DATABASE_URL/REDIS_URL defaults already match docker-compose.yml
+```
+
+4. Apply database migrations (schema is not migrated automatically at startup — run this yourself whenever `migrations/` changes):
+```bash
+cargo install sqlx-cli --no-default-features --features postgres,rustls
+sqlx migrate run --database-url "$DATABASE_URL"
+```
+
+5. Install dependencies:
 ```bash
 cargo build
 ```
 
-4. Run the application:
+6. Run the application:
 ```bash
 cargo run
 ```
