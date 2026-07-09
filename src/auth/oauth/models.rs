@@ -1,7 +1,7 @@
 // src/auth/oauth/models.rs
 use serde::{Deserialize, Serialize};
 
-// 通用的 OAuth 请求结构
+// Generic OAuth request struct
 #[derive(Debug, Serialize, Deserialize)]
 pub struct OAuthTokenRequest {
     pub token: String, 
@@ -17,7 +17,7 @@ pub struct OAuthUserProfile {
     pub picture: Option<String>,
 }
 
-// Google 特定数据结构
+// Google-specific data struct
 #[derive(Debug, Deserialize)]
 pub struct GoogleUserInfo {
     pub sub: String,
@@ -27,7 +27,7 @@ pub struct GoogleUserInfo {
     pub picture: Option<String>,
 }
 
-// Facebook 特定数据结构
+// Facebook-specific data struct
 #[derive(Debug, Deserialize)]
 pub struct FacebookUserInfo {
     pub id: String,

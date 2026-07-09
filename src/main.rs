@@ -17,13 +17,13 @@ async fn main() -> std::io::Result<()> {
     dotenv().ok();
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("debug")).init();
     
-    let config = config::Config::from_env().expect("配置错误");
-    let db = db::init_db(&config).await.expect("数据库连接失败");
+    let config = config::Config::from_env().expect("Config error");
+    let db = db::init_db(&config).await.expect("Database connection failed");
     let redis_service = RedisService::new(&config.redis_url)
-    .expect("Redis 服务初始化失败");
+    .expect("Redis service initialization failed");
     let ai_service = ai::service::AIServiceImpl::new(config.clone());
-    
-    log::info!("启动服务器 http://{}:{}", config.server_host, config.server_port);
+
+    log::info!("Starting server at http://{}:{}", config.server_host, config.server_port);
     HttpServer::new(move || {
         let cors = Cors::default()
             .allow_any_origin()

@@ -14,32 +14,32 @@ pub async fn verify_access_token(token: &str) -> Result<OAuthUserProfile, AppErr
         .get(&url)
         .send()
         .await
-        .map_err(|e| AppError::AuthenticationError(format!("Facebook API 请求失败: {}", e)))?;
-    
-    // 检查状态码
+        .map_err(|e| AppError::AuthenticationError(format!("Facebook API request failed: {}", e)))?;
+
+    // Check the status code
     if !response.status().is_success() {
         let error_text = response.text().await.unwrap_or_else(|_| "Unknown error".to_string());
-        return Err(AppError::AuthenticationError(format!("Facebook 令牌验证失败: {}", error_text)));
+        return Err(AppError::AuthenticationError(format!("Facebook token verification failed: {}", error_text)));
     }
-    
-    // 解析用户信息
+
+    // Parse the user info
     let user_info: FacebookUserInfo = response
         .json()
         .await
-        .map_err(|e| AppError::AuthenticationError(format!("解析 Facebook 用户信息失败: {}", e)))?;
-    
-    // 确保有电子邮件
+        .map_err(|e| AppError::AuthenticationError(format!("Failed to parse Facebook user info: {}", e)))?;
+
+    // Ensure an email is present
     let email = user_info.email.ok_or_else(|| {
-        AppError::AuthenticationError("Facebook 帐户没有关联电子邮件".to_string())
+        AppError::AuthenticationError("Facebook account has no associated email".to_string())
     })?;
-    
-    // 获取头像 URL (如果有)
+
+    // Get the avatar URL (if any)
     let picture = user_info
         .picture_data
         .and_then(|data| data.data)
         .and_then(|pic| pic.url);
-    
-    // 转换为通用的用户配置文件格式
+
+    // Convert to the generic user profile format
     Ok(OAuthUserProfile {
         provider: "facebook".to_string(),
         provider_user_id: user_info.id,

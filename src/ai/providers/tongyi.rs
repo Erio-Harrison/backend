@@ -84,7 +84,6 @@ impl Provider for TongyiProvider {
     }
 
     async fn analyze(&self, request: AIRequest) -> Result<AIResponse, AppError> {
-        // 保存输入类型
         let is_text = matches!(&request.input, AIInput::Text(_));
 
         let (_model, payload, endpoint) = match request.input {
@@ -100,7 +99,7 @@ impl Provider for TongyiProvider {
                     ImageFormat::Base64(base64) => base64,
                     _ => return Err(AppError::AIServiceError("Unsupported image format".to_string())),
                 };
-                let text = request.prompt.unwrap_or_else(|| "请分析这张图片".to_string());
+                let text = request.prompt.unwrap_or_else(|| "Please analyze this image".to_string());
                 let payload = self.build_image_payload(image_content, text, &model);
                 (model, payload, self.get_endpoint(true))
             },

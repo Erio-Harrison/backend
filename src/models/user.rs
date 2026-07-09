@@ -87,7 +87,7 @@ impl User {
         .bind(&password_hash)
         .fetch_one(pool)
         .await
-        .map_err(|e| crate::errors::AppError::DatabaseError(format!("创建用户失败: {}", e)))?;
+        .map_err(|e| crate::errors::AppError::DatabaseError(format!("Failed to create user: {}", e)))?;
 
         Ok(user)
     }
@@ -102,7 +102,7 @@ impl User {
         .bind(email)
         .fetch_optional(pool)
         .await
-        .map_err(|e| crate::errors::AppError::DatabaseError(format!("查找用户失败: {}", e)))?;
+        .map_err(|e| crate::errors::AppError::DatabaseError(format!("Failed to find user: {}", e)))?;
 
         Ok(user)
     }
@@ -117,7 +117,7 @@ impl User {
         .bind(username)
         .fetch_optional(pool)
         .await
-        .map_err(|e| crate::errors::AppError::DatabaseError(format!("查找用户失败: {}", e)))?;
+        .map_err(|e| crate::errors::AppError::DatabaseError(format!("Failed to find user: {}", e)))?;
 
         Ok(user)
     }
@@ -132,7 +132,7 @@ impl User {
         .bind(id)
         .fetch_optional(pool)
         .await
-        .map_err(|e| crate::errors::AppError::DatabaseError(format!("查找用户失败: {}", e)))?;
+        .map_err(|e| crate::errors::AppError::DatabaseError(format!("Failed to find user: {}", e)))?;
 
         Ok(user)
     }
@@ -178,7 +178,7 @@ impl User {
         let updated_user = sqlx_query
             .fetch_one(pool)
             .await
-            .map_err(|e| crate::errors::AppError::DatabaseError(format!("更新用户失败: {}", e)))?;
+            .map_err(|e| crate::errors::AppError::DatabaseError(format!("Failed to update user: {}", e)))?;
 
         *self = updated_user;
         Ok(())
@@ -199,7 +199,7 @@ impl User {
         .bind(&oauth_id)
         .fetch_optional(pool)
         .await
-        .map_err(|e| crate::errors::AppError::DatabaseError(format!("查找 OAuth 用户失败: {}", e)))?
+        .map_err(|e| crate::errors::AppError::DatabaseError(format!("Failed to find OAuth user: {}", e)))?
         {
             return Ok(user);
         }
@@ -218,15 +218,15 @@ impl User {
             .bind(existing_user.id)
             .fetch_one(pool)
             .await
-            .map_err(|e| crate::errors::AppError::DatabaseError(format!("更新用户 OAuth 信息失败: {}", e)))?;
+            .map_err(|e| crate::errors::AppError::DatabaseError(format!("Failed to update user OAuth info: {}", e)))?;
 
             return Ok(updated_user);
         }
 
-        // 确保用户名唯一
+        // Ensure the username is unique
         let final_username = Self::ensure_unique_username(pool, username).await?;
 
-        // 如果都不存在，创建新的 OAuth 用户
+        // Neither exists yet, so create a new OAuth user
         let user = sqlx::query_as::<_, User>(
             r#"
             INSERT INTO users (email, username, password_hash, avatar_url, oauth_provider, oauth_id, created_at, updated_at)
@@ -241,12 +241,12 @@ impl User {
         .bind(&oauth_id)
         .fetch_one(pool)
         .await
-        .map_err(|e| crate::errors::AppError::DatabaseError(format!("创建 OAuth 用户失败: {}", e)))?;
+        .map_err(|e| crate::errors::AppError::DatabaseError(format!("Failed to create OAuth user: {}", e)))?;
 
         Ok(user)
     }
 
-    // 确保用户名唯一
+    // Ensure the username is unique
     async fn ensure_unique_username(
         pool: &crate::db::DbPool,
         base_username: String,
@@ -258,9 +258,9 @@ impl User {
             username = format!("{}_{}", base_username, counter);
             counter += 1;
             
-            // 避免无限循环
+            // Avoid an infinite loop
             if counter > 1000 {
-                return Err(crate::errors::AppError::InternalError("无法生成唯一用户名".to_string()));
+                return Err(crate::errors::AppError::InternalError("Failed to generate a unique username".to_string()));
             }
         }
 

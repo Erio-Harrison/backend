@@ -13,15 +13,15 @@ pub async fn register(
     data: web::Json<RegisterRequest>,
 ) -> Result<impl Responder, AppError> {
     if User::find_by_email(&db, &data.email).await?.is_some() {
-        return Err(AppError::ValidationError("邮箱已注册".to_string()));
+        return Err(AppError::ValidationError("Email already registered".to_string()));
     }
-    
+
     if User::find_by_username(&db, &data.username).await?.is_some() {
-        return Err(AppError::ValidationError("用户名已存在".to_string()));
+        return Err(AppError::ValidationError("Username already taken".to_string()));
     }
-    
+
     if data.password.len() < 8 {
-        return Err(AppError::ValidationError("密码长度必须至少为8位".to_string()));
+        return Err(AppError::ValidationError("Password must be at least 8 characters".to_string()));
     }
     
     let hashed_password = hash_password(&data.password)?;
@@ -47,14 +47,14 @@ pub async fn login(
     data: web::Json<LoginRequest>,
 ) -> Result<impl Responder, AppError> {
     let user = User::find_by_email(&db, &data.email).await?
-        .ok_or_else(|| AppError::AuthenticationError("用户名或密码错误".to_string()))?;
+        .ok_or_else(|| AppError::AuthenticationError("Invalid username or password".to_string()))?;
 
     if user.password_hash.is_empty() {
-        return Err(AppError::AuthenticationError("账户不支持密码登录".to_string()));
+        return Err(AppError::AuthenticationError("This account does not support password login".to_string()));
     }
 
     if !verify_password(&data.password, &user.password_hash)? {
-        return Err(AppError::AuthenticationError("用户名或密码错误".to_string()));
+        return Err(AppError::AuthenticationError("Invalid username or password".to_string()));
     }
 
     let token = generate_jwt(&user.id.to_string())?;
@@ -74,7 +74,7 @@ pub async fn login(
         },
     };
 
-    log::info!("用户登录成功: {}", user_email);
+    log::info!("User login successful: {}", user_email);
     Ok(HttpResponse::Ok().json(response))
 }
 
@@ -85,7 +85,7 @@ pub async fn oauth_login(
     let user_profile = match data.provider.as_str() {
         "google" => google::verify_id_token(&data.token).await?,
         "facebook" => facebook::verify_access_token(&data.token).await?, 
-        _ => return Err(AppError::ValidationError(format!("不支持的 OAuth 提供商: {}", data.provider))),
+        _ => return Err(AppError::ValidationError(format!("Unsupported OAuth provider: {}", data.provider))),
     };
 
     let user = User::find_or_create_oauth_user(
@@ -115,7 +115,7 @@ pub async fn oauth_login(
         },
     };
 
-    log::info!("OAuth 登录成功: {} ({})", user_email, provider_name);
+    log::info!("OAuth login successful: {} ({})", user_email, provider_name);
     Ok(HttpResponse::Ok().json(response))
 }
 
@@ -125,7 +125,7 @@ pub fn get_claims_from_request(req: &HttpRequest) -> Result<Claims, AppError> {
         .get("Authorization")
         .and_then(|h| h.to_str().ok())
         .and_then(|h| h.strip_prefix("Bearer "))
-        .ok_or_else(|| AppError::AuthenticationError("缺少认证Token".to_string()))?;
+        .ok_or_else(|| AppError::AuthenticationError("Missing auth token".to_string()))?;
 
     crate::auth::utils::verify_jwt(token)
 }
@@ -137,10 +137,10 @@ pub async fn update_avatar(
 ) -> Result<HttpResponse, AppError> {
     let claims = get_claims_from_request(&req)?;
     let user_id = Uuid::parse_str(&claims.sub)
-        .map_err(|_| AppError::InvalidId("无效的用户ID".into()))?;
+        .map_err(|_| AppError::InvalidId("Invalid user id".into()))?;
 
     let mut user = User::find_by_id(&db, user_id).await?
-        .ok_or_else(|| AppError::AuthenticationError("用户不存在".to_string()))?;
+        .ok_or_else(|| AppError::AuthenticationError("User not found".to_string()))?;
 
     let update_req = crate::models::user::UpdateUserRequest {
         username: None,
@@ -160,10 +160,10 @@ pub async fn get_profile(
 ) -> Result<HttpResponse, AppError> {
     let claims = get_claims_from_request(&req)?;
     let user_id = Uuid::parse_str(&claims.sub)
-        .map_err(|_| AppError::InvalidId("无效的用户ID".into()))?;
+        .map_err(|_| AppError::InvalidId("Invalid user id".into()))?;
 
     let user = User::find_by_id(&db, user_id).await?
-        .ok_or_else(|| AppError::AuthenticationError("用户不存在".to_string()))?;
+        .ok_or_else(|| AppError::AuthenticationError("User not found".to_string()))?;
 
     Ok(HttpResponse::Ok().json(UserResponse {
         id: user.id.to_string(),

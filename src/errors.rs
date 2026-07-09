@@ -7,28 +7,28 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum AppError {
-    #[error("认证失败: {0}")]
+    #[error("Authentication failed: {0}")]
     AuthenticationError(String),
-    
-    #[error("数据库错误: {0}")]
+
+    #[error("Database error: {0}")]
     DatabaseError(String),
-    
-    #[error("验证错误: {0}")]
+
+    #[error("Validation error: {0}")]
     ValidationError(String),
-    
-    #[error("配置错误: {0}")]
+
+    #[error("Config error: {0}")]
     ConfigError(String),
-    
-    #[error("内部服务器错误: {0}")]
+
+    #[error("Internal server error: {0}")]
     InternalError(String),
 
-    #[error("无效的帖子")]
+    #[error("Invalid id")]
     InvalidId(String),
 
-    #[error("缓存出错了")]
+    #[error("Cache error")]
     RedisError(String),
 
-    #[error("AI调用出错了")]
+    #[error("AI service error")]
     AIServiceError(String),
 }
 
@@ -42,24 +42,24 @@ impl ResponseError for AppError {
                 HttpResponse::BadRequest().json(json_error_response(&self.to_string()))
             }
             AppError::ConfigError(_) => {
-                log::error!("配置错误: {:?}", self);
-                HttpResponse::InternalServerError().json(json_error_response("服务器配置错误"))
+                log::error!("Config error: {:?}", self);
+                HttpResponse::InternalServerError().json(json_error_response("Server config error"))
             }
             AppError::DatabaseError(_) | AppError::InternalError(_) => {
-                log::error!("内部错误: {:?}", self);
-                HttpResponse::InternalServerError().json(json_error_response("内部服务器错误"))
+                log::error!("Internal error: {:?}", self);
+                HttpResponse::InternalServerError().json(json_error_response("Internal server error"))
             }
             AppError::InvalidId(_) => {
-                log::error!("客户端错误: {:?}", self);
-                HttpResponse::InternalServerError().json(json_error_response("无效的帖子，错误"))
+                log::error!("Client error: {:?}", self);
+                HttpResponse::InternalServerError().json(json_error_response("Invalid id"))
             }
             AppError::RedisError(_) => {
-                log::error!("缓存错误: {:?}", self);
-                HttpResponse::InternalServerError().json(json_error_response("缓存服务错误"))
+                log::error!("Cache error: {:?}", self);
+                HttpResponse::InternalServerError().json(json_error_response("Cache service error"))
             }
             AppError::AIServiceError(_) => {
-                log::error!("AI报错: {:?}", self);
-                HttpResponse::InternalServerError().json(json_error_response("AI服务出错"))
+                log::error!("AI error: {:?}", self);
+                HttpResponse::InternalServerError().json(json_error_response("AI service error"))
             }
         }
     }

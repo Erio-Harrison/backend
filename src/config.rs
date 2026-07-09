@@ -55,19 +55,19 @@ impl Config {
             server_port: env::var("SERVER_PORT")
                 .unwrap_or_else(|_| "8080".to_string())
                 .parse()
-                .map_err(|_| AppError::ConfigError("无效的服务器端口".to_string()))?,
-            
+                .map_err(|_| AppError::ConfigError("Invalid server port".to_string()))?,
+
             database_url: env::var("DATABASE_URL").map_err(|_| {
-                AppError::ConfigError("DATABASE_URL 环境变量未设置".to_string())
+                AppError::ConfigError("DATABASE_URL environment variable not set".to_string())
             })?,
             database_max_connections: env::var("DATABASE_MAX_CONNECTIONS")
                 .unwrap_or_else(|_| "10".to_string())
                 .parse()
-                .map_err(|_| AppError::ConfigError("无效的数据库最大连接数".to_string()))?,
+                .map_err(|_| AppError::ConfigError("Invalid database max connections".to_string()))?,
             database_min_connections: env::var("DATABASE_MIN_CONNECTIONS")
                 .unwrap_or_else(|_| "1".to_string())
                 .parse()
-                .map_err(|_| AppError::ConfigError("无效的数据库最小连接数".to_string()))?,
+                .map_err(|_| AppError::ConfigError("Invalid database min connections".to_string()))?,
             
             redis_url: env::var("REDIS_URL").unwrap_or_else(|_| "redis://127.0.0.1:6379".to_string()),
             ai_providers,

@@ -3,7 +3,7 @@ use crate::errors::AppError;
 use sqlx::{PgPool, Row};
 use sqlx::postgres::PgPoolOptions;
 
-// 使用 SQLx 连接池
+// SQLx connection pool
 pub type DbPool = PgPool;
 
 pub async fn init_db(config: &Config) -> Result<DbPool, AppError> {
@@ -12,16 +12,16 @@ pub async fn init_db(config: &Config) -> Result<DbPool, AppError> {
         .min_connections(config.database_min_connections)
         .connect(&config.database_url)
         .await
-        .map_err(|e| AppError::DatabaseError(format!("PostgreSQL 连接失败: {}", e)))?;
+        .map_err(|e| AppError::DatabaseError(format!("PostgreSQL connection failed: {}", e)))?;
 
     let row = sqlx::query("SELECT 1 as test")
         .fetch_one(&pool)
         .await
-        .map_err(|e| AppError::DatabaseError(format!("PostgreSQL 连接验证失败: {}", e)))?;
-    
+        .map_err(|e| AppError::DatabaseError(format!("PostgreSQL connection check failed: {}", e)))?;
+
     let test_value: i32 = row.get("test");
     if test_value == 1 {
-        log::info!("PostgreSQL 连接成功");
+        log::info!("PostgreSQL connected successfully");
     }
 
     Ok(pool)
