@@ -41,7 +41,7 @@ curl -X POST http://localhost:8080/auth/register -H "Content-Type: application/j
 **Response:**
 ```json
 {
-  "error": "验证错误: 邮箱已注册"
+  "error": "Validation error: Email already registered"
 }
 ```
 
@@ -73,7 +73,7 @@ curl -X POST http://localhost:8080/auth/login -H "Content-Type: application/json
 **Response:**
 ```json
 {
-  "error": "认证失败: 用户名或密码错误"
+  "error": "Authentication failed: Invalid username or password"
 }
 ```
 
@@ -115,7 +115,7 @@ curl -X GET http://localhost:8080/user/profile
 **Response:**
 ```json
 {
-  "error": "认证失败: 缺少认证Token"
+  "error": "Authentication failed: Missing auth token"
 }
 ```
 
@@ -128,7 +128,7 @@ curl -X POST http://localhost:8080/auth/register -H "Content-Type: application/j
 **Response:**
 ```json
 {
-  "error": "验证错误: 密码长度必须至少为8位"
+  "error": "Validation error: Password must be at least 8 characters"
 }
 ```
 
