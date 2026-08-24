@@ -3,15 +3,15 @@ services:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_USER: rs_auth_ai
-      POSTGRES_PASSWORD: rs_auth_ai
-      POSTGRES_DB: rs_auth_ai
+      POSTGRES_USER: backend
+      POSTGRES_PASSWORD: backend
+      POSTGRES_DB: backend
     ports:
       - "5432:5432"
     volumes:
-      - rs_auth_ai_postgres_data:/var/lib/postgresql/data
+      - backend_postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U rs_auth_ai"]
+      test: ["CMD-SHELL", "pg_isready -U backend"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -22,7 +22,7 @@ services:
     ports:
       - "6379:6379"
     volumes:
-      - rs_auth_ai_redis_data:/data
+      - backend_redis_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -30,5 +30,5 @@ services:
       retries: 5
 
 volumes:
-  rs_auth_ai_postgres_data:
-  rs_auth_ai_redis_data:
+  backend_postgres_data:
+  backend_redis_data:

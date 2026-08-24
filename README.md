@@ -1,4 +1,4 @@
-# rs-auth-ai
+# backend
 
 This is a Rust-based template project created by [Erio-Harrison](https://github.com/Erio-Harrison) for developing applications with user authentication and AI-powered functionality. It features a modular and extensible architecture, supporting JWT-based authentication, OAuth (Google and Facebook), and AI integration (currently compatible with Tongyi Qianwen, with flexibility to add other providers easily).  
 
@@ -11,7 +11,7 @@ Detailed API documentation is available in:
 
 ## Project Structure
 ```
-rs-auth-ai/
+backend/
 ├── docker-compose.yml         # Local PostgreSQL + Redis
 ├── .env.example                # Environment variable template
 ├── migrations/                 # SQL migrations (run automatically on startup)
@@ -85,7 +85,7 @@ rs-auth-ai/
 1. Clone the repository:
 ```bash
 git clone https://github.com/Erio-Harrison/rs-auth-ai.git
-cd rs-auth-ai
+cd backend
 ```
 
 2. Start PostgreSQL and Redis (via Docker Compose):
